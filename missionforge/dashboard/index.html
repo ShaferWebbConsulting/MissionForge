@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MissionForge — Predictive Maintenance Dashboard</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<!-- ======================================================================
+     Header
+     ====================================================================== -->
+<header>
+  <div class="header-left">
+    <span class="logo">⚡ MissionForge</span>
+    <span class="tagline">Semantic Overlay · Legacy CORBA Upcycling</span>
+  </div>
+  <div class="header-right">
+    <span class="arch-label">Legacy CORBA App</span>
+    <span class="arch-arrow">→</span>
+    <span class="arch-label highlight">MissionForge Overlay</span>
+    <span class="arch-arrow">→</span>
+    <span class="arch-label">Predictive Alerts</span>
+    <div id="conn-indicator" class="conn-dot disconnected" title="API connection"></div>
+  </div>
+</header>
+
+<!-- ======================================================================
+     Health Score + Controls
+     ====================================================================== -->
+<section class="top-row">
+  <div class="card health-card">
+    <h2>System Health</h2>
+    <div id="health-gauge" class="gauge">
+      <svg viewBox="0 0 200 120" class="gauge-svg">
+        <!-- Background arc -->
+        <path d="M 20 100 A 80 80 0 0 1 180 100" fill="none" stroke="#2a2a3a" stroke-width="16" stroke-linecap="round"/>
+        <!-- Value arc (updated by JS) -->
+        <path id="gauge-arc" d="M 20 100 A 80 80 0 0 1 180 100" fill="none" stroke="#00ff88" stroke-width="16" stroke-linecap="round"
+              stroke-dasharray="251.2" stroke-dashoffset="0"/>
+        <text id="gauge-text" x="100" y="95" text-anchor="middle" class="gauge-num">100</text>
+        <text x="100" y="113" text-anchor="middle" class="gauge-label">HEALTH</text>
+      </svg>
+    </div>
+    <div id="health-status" class="status-badge nominal">NOMINAL</div>
+    <div id="health-alerts" class="health-meta">0 active alerts</div>
+  </div>
+
+  <div class="card controls-card">
+    <h2>Demo Controls</h2>
+    <p class="demo-note">
+      Inject a fault to simulate legacy system degradation and watch
+      the semantic overlay generate predictive maintenance alerts.
+    </p>
+    <button id="btn-fault" class="btn btn-danger" onclick="injectFault()">
+      🔴 Inject Fault
+    </button>
+    <button id="btn-reset" class="btn btn-success" onclick="resetDemo()">
+      🟢 Reset System
+    </button>
+    <div id="demo-msg" class="demo-msg"></div>
+  </div>
+
+  <div class="card status-card">
+    <h2>System Status</h2>
+    <table class="status-table">
+      <tr><td>Mode</td><td id="sys-mode">—</td></tr>
+      <tr><td>Telemetry count</td><td id="sys-count">—</td></tr>
+      <tr><td>Uptime</td><td id="sys-uptime">—</td></tr>
+      <tr><td>Fault active</td><td id="sys-fault">—</td></tr>
+      <tr><td>Last update</td><td id="sys-lastupdate">—</td></tr>
+    </table>
+  </div>
+</section>
+
+<!-- ======================================================================
+     Live Telemetry
+     ====================================================================== -->
+<section class="section-title">Live Telemetry  <span class="subtitle">← streamed from legacy CORBA app</span></section>
+<section class="telemetry-grid">
+  <div class="tcard" id="tc-engine_temp">
+    <div class="tc-icon">🌡️</div>
+    <div class="tc-label">Engine Temp</div>
+    <div class="tc-value" id="tv-engine_temp">—</div>
+    <div class="tc-unit">°C</div>
+    <div class="tc-bar"><div class="tc-bar-fill" id="tb-engine_temp"></div></div>
+  </div>
+  <div class="tcard" id="tc-vibration">
+    <div class="tc-icon">📳</div>
+    <div class="tc-label">Vibration</div>
+    <div class="tc-value" id="tv-vibration">—</div>
+    <div class="tc-unit">g</div>
+    <div class="tc-bar"><div class="tc-bar-fill" id="tb-vibration"></div></div>
+  </div>
+  <div class="tcard" id="tc-oil_pressure">
+    <div class="tc-icon">🔩</div>
+    <div class="tc-label">Oil Pressure</div>
+    <div class="tc-value" id="tv-oil_pressure">—</div>
+    <div class="tc-unit">PSI</div>
+    <div class="tc-bar"><div class="tc-bar-fill" id="tb-oil_pressure"></div></div>
+  </div>
+  <div class="tcard" id="tc-fuel_flow">
+    <div class="tc-icon">⛽</div>
+    <div class="tc-label">Fuel Flow</div>
+    <div class="tc-value" id="tv-fuel_flow">—</div>
+    <div class="tc-unit">kg/min</div>
+    <div class="tc-bar"><div class="tc-bar-fill" id="tb-fuel_flow"></div></div>
+  </div>
+  <div class="tcard" id="tc-cpu_usage">
+    <div class="tc-icon">💻</div>
+    <div class="tc-label">CPU Usage</div>
+    <div class="tc-value" id="tv-cpu_usage">—</div>
+    <div class="tc-unit">%</div>
+    <div class="tc-bar"><div class="tc-bar-fill" id="tb-cpu_usage"></div></div>
+  </div>
+  <div class="tcard" id="tc-memory_usage">
+    <div class="tc-icon">🧠</div>
+    <div class="tc-label">Memory</div>
+    <div class="tc-value" id="tv-memory_usage">—</div>
+    <div class="tc-unit">%</div>
+    <div class="tc-bar"><div class="tc-bar-fill" id="tb-memory_usage"></div></div>
+  </div>
+  <div class="tcard" id="tc-sensor_status">
+    <div class="tc-icon">📡</div>
+    <div class="tc-label">Sensor Status</div>
+    <div class="tc-value small" id="tv-sensor_status">—</div>
+    <div class="tc-unit">&nbsp;</div>
+  </div>
+</section>
+
+<!-- ======================================================================
+     Active Alerts
+     ====================================================================== -->
+<section class="section-title">Active Alerts  <span class="subtitle">← generated by MissionForge semantic overlay</span></section>
+<section class="alerts-section">
+  <div id="alerts-list" class="alerts-list">
+    <div class="no-alerts">No active alerts — system nominal</div>
+  </div>
+</section>
+
+<!-- ======================================================================
+     Telemetry History
+     ====================================================================== -->
+<section class="section-title">Event History</section>
+<section class="history-section">
+  <table class="history-table">
+    <thead>
+      <tr>
+        <th>Timestamp</th>
+        <th>Eng Temp</th>
+        <th>Vibration</th>
+        <th>Oil PSI</th>
+        <th>Fuel</th>
+        <th>CPU %</th>
+        <th>Mem %</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody id="history-tbody">
+      <tr><td colspan="8" class="no-data">Waiting for telemetry…</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ======================================================================
+     Footer
+     ====================================================================== -->
+<footer>
+  <span>MissionForge v1.0 — Computational Upcycling of Legacy CORBA Mission Systems</span>
+  <span class="footer-right">No legacy hardware or software modified &nbsp;|&nbsp; DARPA Low Resource Computing Demo</span>
+</footer>
+
+<script src="app.js"></script>
+</body>
+</html>
