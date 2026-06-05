@@ -137,6 +137,8 @@ This builds and starts three containers:
 ```
 http://localhost:8080
 ```
+<img width="1910" height="918" alt="image" src="https://github.com/user-attachments/assets/a077346c-31e0-4a7c-9635-00e0a241b46e" />
+
 
 ### Test the API
 
