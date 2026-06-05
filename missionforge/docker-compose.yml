@@ -1,0 +1,101 @@
+# =============================================================================
+# MissionForge — docker-compose.yml
+#
+# Starts the full MissionForge stack:
+#   1. legacy-corba-server  — C++ telemetry server (mock CORBA, no TAO needed)
+#   2. missionforge-adapter — Python FastAPI semantic overlay
+#   3. dashboard            — Static HTML dashboard (nginx)
+#
+# Quick start:
+#   docker compose up --build
+#   open http://localhost:8080
+#
+# See README.md for full TAO ORB mode instructions.
+# =============================================================================
+
+version: "3.9"
+
+services:
+
+  # ---------------------------------------------------------------------------
+  # Legacy CORBA Telemetry Server
+  # Runs the C++ simulation in mock mode (no TAO ORB dependency).
+  # The server streams JSON telemetry to stdout; the telemetry_client bridge
+  # forwards it to the missionforge-adapter via HTTP.
+  # ---------------------------------------------------------------------------
+  legacy-corba-server:
+    build:
+      context: ./legacy_corba_app
+      dockerfile: Dockerfile
+    container_name: legacy-corba-server
+    restart: unless-stopped
+    environment:
+      ADAPTER_HOST: missionforge-adapter
+      ADAPTER_PORT: "8000"
+    depends_on:
+      - missionforge-adapter
+    networks:
+      - missionforge-net
+    volumes:
+      # Shared tmpfs for fault injection flag files
+      - fault-flags:/tmp
+    healthcheck:
+      test: ["CMD-SHELL", "ps aux | grep telemetry_server | grep -v grep"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  # ---------------------------------------------------------------------------
+  # MissionForge Adapter (FastAPI + Semantic Overlay)
+  # Receives telemetry, runs rule engine + anomaly detection, serves REST API.
+  # ---------------------------------------------------------------------------
+  missionforge-adapter:
+    build:
+      context: .
+      dockerfile: ./missionforge_adapter/Dockerfile
+    container_name: missionforge-adapter
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      PYTHONUNBUFFERED: "1"
+    networks:
+      - missionforge-net
+    volumes:
+      - fault-flags:/tmp
+    healthcheck:
+      test: ["CMD-SHELL", "python3 -c \"import urllib.request; urllib.request.urlopen('http://localhost:8000/')\""]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+
+  # ---------------------------------------------------------------------------
+  # Dashboard (nginx static server)
+  # Serves the HTML/JS/CSS dashboard on port 8080.
+  # ---------------------------------------------------------------------------
+  dashboard:
+    build:
+      context: ./dashboard
+      dockerfile: Dockerfile
+    container_name: missionforge-dashboard
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+    networks:
+      - missionforge-net
+    depends_on:
+      - missionforge-adapter
+
+# ---------------------------------------------------------------------------
+# Shared network
+# ---------------------------------------------------------------------------
+networks:
+  missionforge-net:
+    driver: bridge
+
+# ---------------------------------------------------------------------------
+# Shared volume for fault injection flag files
+# ---------------------------------------------------------------------------
+volumes:
+  fault-flags:

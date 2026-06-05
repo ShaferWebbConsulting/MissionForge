@@ -1,0 +1,36 @@
+// Telemetry.idl
+// CORBA IDL definition for legacy mission computer telemetry.
+// This file represents a typical 32-bit CORBA-based mission system interface.
+// MissionForge reads from this interface WITHOUT modifying it.
+
+module MissionSystem {
+
+    // Sensor status enumeration
+    enum SensorStatusEnum {
+        SENSOR_OK,
+        SENSOR_DEGRADED,
+        SENSOR_FAILED
+    };
+
+    // Core telemetry structure published by the legacy mission computer
+    struct TelemetryData {
+        double engine_temp;       // Engine temperature in Celsius
+        double vibration;         // Vibration level (g-force units)
+        double fuel_flow;         // Fuel flow rate (kg/min)
+        double oil_pressure;      // Oil pressure (PSI)
+        double cpu_usage;         // CPU utilization (0-100%)
+        double memory_usage;      // Memory utilization (0-100%)
+        SensorStatusEnum sensor_status; // Overall sensor health
+        string timestamp;         // ISO-8601 UTC timestamp
+    };
+
+    // Legacy telemetry service interface — unchanged from original system
+    interface TelemetryService {
+        // Poll latest telemetry snapshot
+        TelemetryData getLatestTelemetry();
+
+        // Notify service is alive
+        boolean ping();
+    };
+
+};

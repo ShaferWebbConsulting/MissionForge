@@ -1,0 +1,362 @@
+/* ==========================================================================
+   MissionForge Dashboard — style.css
+   Dark mission-ops aesthetic
+   ========================================================================== */
+
+:root {
+  --bg:          #0a0a14;
+  --bg2:         #12121f;
+  --bg3:         #1a1a2e;
+  --border:      #2a2a4a;
+  --text:        #c8ccd8;
+  --text-dim:    #6a6a8a;
+  --accent:      #00ff88;
+  --accent2:     #00aaff;
+  --warn:        #ff8800;
+  --crit:        #ff2244;
+  --font:        'Segoe UI', system-ui, sans-serif;
+  --mono:        'Consolas', 'Courier New', monospace;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 14px;
+  line-height: 1.5;
+  min-height: 100vh;
+}
+
+/* --------------------------------------------------------------------------
+   Header
+   -------------------------------------------------------------------------- */
+header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+  background: var(--bg2);
+  border-bottom: 1px solid var(--border);
+  padding: 12px 20px;
+}
+
+.logo {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--accent);
+  letter-spacing: 0.02em;
+}
+
+.tagline {
+  font-size: 0.8rem;
+  color: var(--text-dim);
+  margin-left: 10px;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.75rem;
+}
+
+.arch-label {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 3px 8px;
+  color: var(--text-dim);
+}
+
+.arch-label.highlight {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.arch-arrow { color: var(--text-dim); }
+
+.conn-dot {
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  margin-left: 8px;
+  transition: background 0.3s;
+}
+.conn-dot.connected    { background: var(--accent); box-shadow: 0 0 6px var(--accent); }
+.conn-dot.disconnected { background: var(--crit); }
+
+/* --------------------------------------------------------------------------
+   Section headers
+   -------------------------------------------------------------------------- */
+.section-title {
+  padding: 16px 20px 6px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-dim);
+  border-top: 1px solid var(--border);
+}
+
+.subtitle {
+  font-size: 0.75rem;
+  color: var(--accent2);
+  text-transform: none;
+  font-weight: 400;
+  margin-left: 8px;
+}
+
+/* --------------------------------------------------------------------------
+   Top row (health + controls + status)
+   -------------------------------------------------------------------------- */
+.top-row {
+  display: grid;
+  grid-template-columns: 220px 1fr 220px;
+  gap: 12px;
+  padding: 16px 20px;
+}
+
+@media (max-width: 900px) {
+  .top-row { grid-template-columns: 1fr 1fr; }
+  .health-card { grid-column: 1 / -1; }
+}
+@media (max-width: 600px) {
+  .top-row { grid-template-columns: 1fr; }
+}
+
+/* --------------------------------------------------------------------------
+   Card base
+   -------------------------------------------------------------------------- */
+.card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 16px;
+}
+
+.card h2 {
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-dim);
+  margin-bottom: 12px;
+}
+
+/* --------------------------------------------------------------------------
+   Health gauge
+   -------------------------------------------------------------------------- */
+.health-card { text-align: center; }
+
+.gauge-svg { width: 100%; max-width: 200px; }
+.gauge-num  { font-size: 32px; font-weight: 700; font-family: var(--mono); fill: var(--accent); }
+.gauge-label { font-size: 10px; fill: var(--text-dim); letter-spacing: 0.1em; }
+
+.status-badge {
+  display: inline-block;
+  margin-top: 8px;
+  padding: 4px 16px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+}
+.status-badge.nominal  { background: rgba(0,255,136,0.15); color: var(--accent); border: 1px solid var(--accent); }
+.status-badge.degraded { background: rgba(255,136,0,0.15);  color: var(--warn);  border: 1px solid var(--warn); }
+.status-badge.critical { background: rgba(255,34,68,0.15);  color: var(--crit);  border: 1px solid var(--crit); }
+
+.health-meta { font-size: 0.75rem; color: var(--text-dim); margin-top: 6px; }
+
+/* --------------------------------------------------------------------------
+   Controls card
+   -------------------------------------------------------------------------- */
+.demo-note {
+  font-size: 0.8rem;
+  color: var(--text-dim);
+  margin-bottom: 12px;
+  line-height: 1.5;
+}
+
+.btn {
+  display: inline-block;
+  padding: 8px 20px;
+  border-radius: 6px;
+  border: none;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  margin: 4px 4px 4px 0;
+  transition: opacity 0.2s;
+}
+.btn:hover { opacity: 0.85; }
+.btn-danger  { background: var(--crit); color: #fff; }
+.btn-success { background: var(--accent); color: #000; }
+
+.demo-msg {
+  font-size: 0.8rem;
+  margin-top: 8px;
+  padding: 6px 10px;
+  border-radius: 4px;
+  min-height: 28px;
+}
+.demo-msg.warn  { background: rgba(255,136,0,0.15); color: var(--warn); }
+.demo-msg.ok    { background: rgba(0,255,136,0.12); color: var(--accent); }
+.demo-msg.error { background: rgba(255,34,68,0.15); color: var(--crit); }
+
+/* --------------------------------------------------------------------------
+   Status table
+   -------------------------------------------------------------------------- */
+.status-table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+.status-table td { padding: 5px 6px; }
+.status-table td:first-child { color: var(--text-dim); white-space: nowrap; }
+.status-table td:last-child  { color: var(--text); font-family: var(--mono); }
+
+/* --------------------------------------------------------------------------
+   Telemetry cards grid
+   -------------------------------------------------------------------------- */
+.telemetry-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 10px;
+  padding: 10px 20px 20px;
+}
+
+.tcard {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px;
+  transition: border-color 0.3s;
+}
+
+.tcard.alert-critical { border-color: var(--crit);  box-shadow: 0 0 10px rgba(255,34,68,0.3); }
+.tcard.alert-high     { border-color: var(--warn);  box-shadow: 0 0 10px rgba(255,136,0,0.2); }
+
+.tc-icon  { font-size: 1.4rem; margin-bottom: 4px; }
+.tc-label { font-size: 0.72rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.08em; }
+.tc-value { font-size: 1.6rem; font-weight: 700; font-family: var(--mono); color: var(--text); margin: 2px 0; }
+.tc-value.small { font-size: 1rem; }
+.tc-unit  { font-size: 0.72rem; color: var(--text-dim); margin-bottom: 6px; }
+
+.tc-bar { height: 4px; background: var(--bg3); border-radius: 2px; overflow: hidden; }
+.tc-bar-fill { height: 100%; background: var(--accent); border-radius: 2px; transition: width 0.6s ease, background 0.3s; width: 0%; }
+
+.ss-ok       { color: var(--accent); font-weight: 600; }
+.ss-degraded { color: var(--warn);   font-weight: 600; }
+.ss-failed   { color: var(--crit);   font-weight: 600; }
+
+/* --------------------------------------------------------------------------
+   Alerts
+   -------------------------------------------------------------------------- */
+.alerts-section { padding: 8px 20px 20px; }
+
+.alerts-list { display: flex; flex-direction: column; gap: 8px; }
+
+.no-alerts {
+  color: var(--text-dim);
+  font-size: 0.85rem;
+  padding: 12px;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+}
+
+.alert-card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--warn);
+  border-radius: 6px;
+  padding: 10px 14px;
+  animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.alert-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+  flex-wrap: wrap;
+}
+
+.alert-type {
+  font-weight: 700;
+  font-family: var(--mono);
+  font-size: 0.85rem;
+}
+
+.alert-sev {
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 10px;
+  color: #000;
+  letter-spacing: 0.08em;
+}
+
+.alert-ts {
+  font-size: 0.72rem;
+  color: var(--text-dim);
+  margin-left: auto;
+  font-family: var(--mono);
+}
+
+.alert-body { font-size: 0.82rem; color: var(--text); margin-bottom: 4px; }
+.alert-signals { font-size: 0.75rem; color: var(--text-dim); font-family: var(--mono); }
+
+/* --------------------------------------------------------------------------
+   History table
+   -------------------------------------------------------------------------- */
+.history-section { padding: 8px 20px 20px; overflow-x: auto; }
+
+.history-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8rem;
+  font-family: var(--mono);
+}
+
+.history-table th {
+  padding: 8px 10px;
+  text-align: left;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-dim);
+  border-bottom: 1px solid var(--border);
+}
+
+.history-table td {
+  padding: 6px 10px;
+  border-bottom: 1px solid rgba(42,42,74,0.5);
+  color: var(--text);
+}
+
+.history-table tr:hover td { background: var(--bg2); }
+
+.no-data { color: var(--text-dim); text-align: center; }
+
+/* --------------------------------------------------------------------------
+   Footer
+   -------------------------------------------------------------------------- */
+footer {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 12px 20px;
+  font-size: 0.72rem;
+  color: var(--text-dim);
+  border-top: 1px solid var(--border);
+  background: var(--bg2);
+  margin-top: 20px;
+}
+
+.footer-right { text-align: right; }
